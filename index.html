@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endless Autóverseny - Ultimate</title>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #111;
+  color: #fff;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+}
+
+#game {
+  display: block;
+  margin: auto;
+  background: #000;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 20px;
+  text-align: center;
+  backdrop-filter: blur(5px);
+}
+
+#hud {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px 18px;
+  border-radius: 10px;
+  z-index: 5;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  min-width: 280px;
+}
+
+#controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  width: 90%;
+  max-width: 600px;
+}
+
+#shopBtn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #2ecc71, #27ae60);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+#shopBtn:hover {
+  background: linear-gradient(to bottom, #27ae60, #219653);
+  transform: translateY(-50%) scale(1.05);
+}
+
+button {
+  padding: 12px 24px;
+  margin: 8px;
+  font-size: 18px;
+  background: linear-gradient(to bottom, #3498db, #2980b9);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 200px;
+  font-weight: bold;
+}
+
+button:hover {
+  background: linear-gradient(to bottom, #2980b9, #1c6ea4);
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+select, input {
+  padding: 10px;
+  margin: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 2px solid #3498db;
+  background: #222;
+  color: white;
+  min-width: 200px;
+}
+
+h1, h2 {
+  margin-bottom: 20px;
+  color: #3498db;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #3498db, #2ecc71);
+  -webkit-text-fill-color: transparent;
+}
+
+h2 {
+  font-size: 32px;
+}
+
+p {
+  margin: 10px;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+label {
+  margin-top: 15px;
+  font-size: 18px;
+  display: block;
+}
+
+.shop-item {
+  background: rgba(30, 30, 40, 0.9);
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+  width: 300px;
+  border: 2px solid rgba(52, 152, 219, 0.5);
+}
+
+.shop-item h3 {
+  color: #f39c12;
+  margin-bottom: 8px;
+}
+
+.shop-item p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.upgrade-bar {
+  width: 100%;
+  height: 12px;
+  background: #333;
+  border-radius: 6px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.upgrade-fill {
+  height: 100%;
+  background: linear-gradient(to right, #2ecc71, #f1c40f);
+  border-radius: 6px;
+  transition: width 0.5s;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px;
+}
+
+.stat {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 15px;
+  border-radius: 10px;
+  min-width: 150px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#pauseBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 28px;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  z-index: 5;
+}
+
+#speedometer {
+  position: absolute;
+  top: 20px;
+  right: 100px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: 18px;
+  border: 2px solid #e74c3c;
+  min-width: 180px;
+}
+
+#gameOver {
+  display: none;
+}
+
+.powerup-indicator {
+  position: absolute;
+  top: 100px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  border-left: 4px solid #f1c40f;
+}
+
+/* Mobil támogatás */
+@media (max-width: 768px) {
+  #hud {
+    font-size: 14px;
+    padding: 8px 12px;
+    min-width: 200px;
+  }
+  
+  #shopBtn {
+    font-size: 20px;
+    padding: 10px 15px;
+    right: 10px;
+  }
+  
+  #speedometer {
+    right: 80px;
+    font-size: 14px;
+    min-width: 140px;
+  }
+  
+  button {
+    min-width: 150px;
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+  
+  h1 {
+    font-size: 32px;
+  }
+  
+  h2 {
+    font-size: 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div>💰 <span id="moneyTxt">0</span> | ⚡ <span id="speedTxt">0.0</span> | 🏆 Rekord: <span id="recordTxt">0</span></div>
+  <div>🚗 Szint: <span id="levelTxt">1</span> | 🏁 Távolság: <span id="distanceTxt">0</span>m | ❤️ <span id="healthTxt">1/1</span></div>
+</div>
+
+<div id="speedometer">
+  🚀 Sebesség: <span id="speedValue">0</span> km/h
+</div>
+
+<button id="shopBtn" style="display:none">🛒 BOLT</button>
+<button id="pauseBtn" style="display:none">⏸️</button>
+
+<div id="controls">
+  <strong>Irrányítás:</strong> W/↑: Előre | S/↓: Hátra | A/←: Balra | D/→: Jobbra | P: Szünet
+</div>
+
+<!-- MENÜ -->
+<div id="menu" class="overlay">
+  <h1>🚗 ENDLESS AUTÓVERSENY 🏁</h1>
+  <p>Menj minél messzebb, kerülj az ellenfeleket és gyűjts pénzt a fejlesztésekre!</p>
+  
+  <div class="stats">
+    <div class="stat">
+      <h3>🏆 Rekord</h3>
+      <p id="menuRecord">0 m</p>
+    </div>
+    <div class="stat">
+      <h3>💰 Legtöbb pénz</h3>
+      <p id="menuMoney">0</p>
+    </div>
+  </div>
+  
+  <label for="laneSel">Sávok száma:</label>
+  <select id="laneSel">
+    <option value="3">3 (Könnyű)</option>
+    <option value="4" selected>4 (Normál)</option>
+    <option value="5">5 (Nehéz)</option>
+    <option value="6">6 (Extrém)</option>
+  </select>
+  
+  <label for="carColor">Autó színe:</label>
+  <input type="color" id="carColor" value="#ff0000">
+  
+  <label for="difficulty">Nehézség:</label>
+  <select id="difficulty">
+    <option value="easy">Könnyű</option>
+    <option value="normal" selected>Normál</option>
+    <option value="hard">Nehéz</option>
+  </select>
+  
+  <button onclick="startGame()">JÁTÉK INDÍTÁSA</button>
+  <button onclick="showInstructions()">ÚTMUTATÓ</button>
+</div>
+
+<!-- SHOP -->
+<div id="shop" class="overlay" style="display:none">
+  <h2>🛒 FEJLESZTÉSEK</h2>
+  <p>💰 Pénz: <span id="shopMoney">0</span></p>
+  
+  <div class="shop-item">
+    <h3>🚀 Max Sebesség</h3>
+    <p>Jelenleg: <span id="currentSpeed">6</span> (Max: 15)</p>
+    <div class="upgrade-bar">
+      <div id="speedBar" class="upgrade-fill" style="width:40%"></div>
+    </div>
+    <button onclick="buyUpgrade('speed')" id="speedBtn">+1 Sebesség - 50$</button>
+  </div>
+  
+  <div class="shop-item">
+    <h3>⚡ Gyorsulás</h3>
+    <p>Jelenleg: <span id="currentAccel">0.25</span> (Max: 0.5)</p>
+    <div class="upgrade-bar">
+      <div id="accelBar" class="upgrade-fill" style="width:25%"></div>
+    </div>
+    <button onclick="buyUpgrade('accel')" id="accelBtn">+0.05 Gyorsulás - 40$</button>
+  </div>
+  
+  <div class="shop-item">
+    <h3>🧭 Irányítás</h3>
+    <p>Jelenleg: <span id="currentHandling">5</span> (Max: 15)</p>
+    <div class="upgrade-bar">
+      <div id="handlingBar" class="upgrade-fill" style="width:33%"></div>
+    </div>
+    <button onclick="buyUpgrade('handling')" id="handlingBtn">+1 Irányítás - 30$</button>
+  </div>
+  
+  <div class="shop-item">
+    <h3>🛡️ Élet</h3>
+    <p>Jelenleg: <span id="currentHealth">1</span> (Max: 5)</p>
+    <div class="upgrade-bar">
+      <div id="healthBar" class="upgrade-fill" style="width:20%"></div>
+    </div>
+    <button onclick="buyUpgrade('health')" id="healthBtn">+1 Élet - 80$</button>
+  </div>
+  
+  <button onclick="closeShop()">VISSZA A JÁTÉKHOZ</button>
+</div>
+
+<!-- ÚTMUTATÓ -->
+<div id="instructions" class="overlay" style="display:none">
+  <h2>🎮 ÚTMUTATÓ</h2>
+  <div style="text-align:left; max-width: 600px;">
+    <p><strong>🎯 Cél:</strong> Menj minél messzebb anélkül, hogy ütköznél más autókkal!</p>
+    <p><strong>🎮 Irányítás:</strong></p>
+    <ul>
+      <li>W / FELFELÉ NYÍL - Előre mozgatás</li>
+      <li>S / LEFELÉ NYÍL - Hátra mozgatás</li>
+      <li>A / BALRA NYÍL - Balra mozgatás</li>
+      <li>D / JOBBRA NYÍL - Jobbra mozgatás</li>
+      <li>P - Szünet</li>
+    </ul>
+    <p><strong>📝 Fontos:</strong> Most már az autót mozgathatod előre és hátra a pályán!</p>
+    <p><strong>💰 Pénz:</strong> Kapj 10$-t minden autó elől sikeresen elhaladva.</p>
+    <p><strong>🛒 Bolt:</strong> Gyűjtött pénzből vásárolj fejlesztéseket a jobb teljesítményért.</p>
+    <p><strong>🚨 Nehézség:</strong> Minél több sáv, annál nehezebb elkerülni az autókat.</p>
+  </div>
+  <button onclick="closeInstructions()">VISSZA</button>
+</div>
+
+<!-- JÁTÉK VÉGE -->
+<div id="gameOver" class="overlay" style="display:none">
+  <h2>💥 JÁTÉK VÉGE!</h2>
+  <p>Ütköztél egy másik autóval.</p>
+  <div class="stats">
+    <div class="stat">
+      <h3>🏁 Távolság</h3>
+      <p id="finalDistance">0 m</p>
+    </div>
+    <div class="stat">
+      <h3>💰 Megszerzett pénz</h3>
+      <p id="finalMoney">0</p>
+    </div>
+    <div class="stat">
+      <h3>🏆 Rekord</h3>
+      <p id="finalRecord">0 m</p>
+    </div>
+  </div>
+  <button onclick="restartGame()">ÚJ JÁTÉK</button>
+  <button onclick="goToMenu()">FŐMENÜ</button>
+</div>
+
+<!-- POWERUP INDICATOR -->
+<div id="powerupIndicator" class="powerup-indicator" style="display:none">
+  <div id="powerupText"></div>
+  <div id="powerupTimer"></div>
+</div>
+
+<script>
+// =========== KONSTANSSOK ÉS VÁLTOZÓK ===========
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+// Képernyő méretezés
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+// Billentyűzet
+const keys = {};
+window.addEventListener("keydown", e => {
+  const key = e.key.toLowerCase();
+  keys[key] = true;
+  
+  // P - szünet
+  if (key === 'p') {
+    togglePause();
+  }
+});
+
+window.addEventListener("keyup", e => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+// Játék állapot
+let gameRunning = false;
+let gamePaused = false;
+let gameOver = false;
+
+// Pénz és pontszám
+let money = 0;
+let score = 0;
+let distance = 0;
+let level = 1;
+let record = parseInt(localStorage.getItem("record")) || 0;
+let maxMoney = parseInt(localStorage.getItem("maxMoney")) || 0;
+
+// Játékos
+const player = {
+  x: 0,
+  y: 0,
+  width: 44,
+  height: 76,
+  speed: 0,
+  maxSpeed: 6,
+  acceleration: 0.25,
+  handling: 5,
+  color: "#ff0000",
+  health: 1,
+  maxHealth: 1,
+  nitro: false,
+  nitroTime: 0,
+  shield: false,
+  shieldTime: 0,
+  invincible: false,
+  invincibleTime: 0
+};
+
+// Ellenségek
+let enemies = [];
+let enemySpawnTimer = 0;
+let enemySpeed = 3;
+let spawnRate = 90;
+
+// Út
+let lanes = 4;
+let laneWidth = 0;
+let roadWidth = 0;
+let roadX = 0;
+let roadY = 0;
+let roadHeight = 0;
+let difficulty = "normal";
+
+// Power-upok
+let powerups = [];
+let powerupSpawnTimer = 0;
+
+// Háttér
+let backgroundOffset = 0;
+let timeOfDay = 0; // 0-1: nappal, 1-2: éjszaka
+
+// =========== INICIALIZÁLÁS ===========
+function init() {
+  // Betöltjük a rekordokat
+  record = parseInt(localStorage.getItem("record")) || 0;
+  maxMoney = parseInt(localStorage.getItem("maxMoney")) || 0;
+  
+  // Frissítjük a menüt
+  document.getElementById("menuRecord").textContent = record + " m";
+  document.getElementById("menuMoney").textContent = maxMoney + " $";
+  document.getElementById("recordTxt").textContent = record;
+  
+  // Játék kezdés előtti állapot
+  gameRunning = false;
+  gamePaused = false;
+  gameOver = false;
+}
+
+// =========== JÁTÉK INDÍTÁSA ===========
+function startGame() {
+  // Beállítások betöltése
+  lanes = parseInt(document.getElementById("laneSel").value);
+  player.color = document.getElementById("carColor").value;
+  difficulty = document.getElementById("difficulty").value;
+  
+  // Nehézség beállítása
+  switch(difficulty) {
+    case "easy":
+      enemySpeed = 2.5;
+      spawnRate = 110;
+      break;
+    case "normal":
+      enemySpeed = 3;
+      spawnRate = 90;
+      break;
+    case "hard":
+      enemySpeed = 3.5;
+      spawnRate = 70;
+      break;
+  }
+  
+  // Út méretei
+  roadWidth = Math.min(600, lanes * 100);
+  laneWidth = roadWidth / lanes;
+  roadX = canvas.width / 2 - roadWidth / 2;
+  roadHeight = canvas.height * 1.5; // Hosszabb útpálya
+  roadY = -canvas.height * 0.5; // A pálya közepén kezdünk
+  
+  // Játékos pozíciója - a pálya közepén
+  player.x = canvas.width / 2;
+  player.y = canvas.height / 2; // Középen kezd
+  player.speed = 0;
+  player.health = player.maxHealth;
+  
+  // Reseteljük a változókat
+  money = 0;
+  score = 0;
+  distance = 0;
+  level = 1;
+  enemies = [];
+  powerups = [];
+  backgroundOffset = 0;
+  timeOfDay = 0;
+  
+  // Elrejtjük a menüt
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("shopBtn").style.display = "block";
+  document.getElementById("pauseBtn").style.display = "block";
+  
+  // Frissítjük a HUD-ot
+  updateHUD();
+  
+  // Elindítjuk a játékot
+  gameRunning = true;
+  gamePaused = false;
+  gameOver = false;
+  
+  // Játék ciklus
+  requestAnimationFrame(gameLoop);
+}
+
+// =========== JÁTÉK CIKLUS ===========
+function gameLoop() {
+  if (!gameRunning) return;
+  
+  if (gamePaused || gameOver) {
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+  
+  // Képernyő törlése
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Háttér rajzolása
+  drawBackground();
+  
+  // Út rajzolása
+  drawRoad();
+  
+  // Játékos frissítése
+  updatePlayer();
+  
+  // Ellenségek frissítése
+  updateEnemies();
+  
+  // Power-upok frissítése
+  updatePowerups();
+  
+  // Ütközés ellenőrzés
+  checkCollisions();
+  
+  // Játékállapot frissítése
+  updateGameState();
+  
+  // HUD frissítése
+  updateHUD();
+  
+  // Power-up indikátor frissítése
+  updatePowerupIndicator();
+  
+  // Következő képkocka
+  requestAnimationFrame(gameLoop);
+}
+
+// =========== RAJZOLÁS ===========
+function drawBackground() {
+  // Éjszakai/nappali ciklus
+  timeOfDay += 0.0001;
+  if (timeOfDay > 2) timeOfDay = 0;
+  
+  const isNight = timeOfDay > 1;
+  const brightness = isNight ? 0.3 : 1;
+  const skyColor = isNight ? '#0a0a2a' : '#87CEEB';
+  
+  // Ég
+  ctx.fillStyle = skyColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Felhők (háttérben)
+  if (!isNight) {
+    drawClouds(backgroundOffset * 0.5);
+  }
+  
+  // Csillagok (éjszaka)
+  if (isNight) {
+    drawStars(backgroundOffset * 0.3);
+  }
+  
+  // Hegyek
+  drawMountains(backgroundOffset * 0.8);
+  
+  // Fák
+  drawTrees(backgroundOffset);
+  
+  // Út szélén házak
+  drawHouses(backgroundOffset);
+}
+
+function drawRoad() {
+  // Út
+  ctx.fillStyle = '#333';
+  ctx.fillRect(roadX, roadY, roadWidth, roadHeight);
+  
+  // Középső vonal
+  ctx.setLineDash([30, 20]);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, roadY);
+  ctx.lineTo(canvas.width / 2, roadY + roadHeight);
+  ctx.stroke();
+  
+  // Sávvonalak
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  for (let i = 1; i < lanes; i++) {
+    const x = roadX + i * laneWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, roadY);
+    ctx.lineTo(x, roadY + roadHeight);
+    ctx.stroke();
+  }
+  
+  // Út széle
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(roadX, roadY, roadWidth, roadHeight);
+  
+  // Pálya animáció (vonalak)
+  drawRoadLines();
+}
+
+function drawRoadLines() {
+  // Útvonal animáció
+  backgroundOffset += 2;
+  
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 4;
+  ctx.setLineDash([20, 30]);
+  
+  for (let i = 0; i < lanes; i++) {
+    const x = roadX + i * laneWidth + laneWidth / 2;
+    for (let y = roadY - 50; y < roadY + roadHeight + 50; y += 100) {
+      const lineY = (y + backgroundOffset) % 100 + roadY;
+      ctx.beginPath();
+      ctx.moveTo(x, lineY);
+      ctx.lineTo(x, lineY + 50);
+      ctx.stroke();
+    }
+  }
+  
+  ctx.setLineDash([]);
+}
+
+function drawCar(x, y, width, height, color, isPlayer = false) {
+  ctx.save();
+  ctx.translate(x, y);
+  
+  // Autó karosszéria
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(-width / 2, -height / 2, width, height, 10);
+  ctx.fill();
+  
+  // Üveg
+  ctx.fillStyle = 'rgba(100, 150, 255, 0.6)';
+  ctx.fillRect(-width / 3, -height / 2 + 8, width * 0.66, 14);
+  
+  // Fények
+  const lightColor = isPlayer && player.nitro ? '#ff9900' : '#ffff00';
+  ctx.fillStyle = lightColor;
+  ctx.fillRect(-width / 2 - 5, -height / 4, 5, 8);
+  ctx.fillRect(width / 2, -height / 4, 5, 8);
+  
+  // Stoppfény
+  ctx.fillStyle = '#ff0000';
+  ctx.fillRect(-width / 2 - 5, height / 4, 5, 8);
+  ctx.fillRect(width / 2, height / 4, 5, 8);
+  
+  // Pajzs (ha van)
+  if (isPlayer && player.shield) {
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, width / 2 + 10, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  
+  // Sebesség effekt
+  if (isPlayer && player.nitro) {
+    ctx.fillStyle = '#ff9900';
+    ctx.beginPath();
+    ctx.moveTo(-width / 4, height / 2);
+    ctx.lineTo(width / 4, height / 2);
+    ctx.lineTo(0, height / 2 + 20);
+    ctx.closePath();
+    ctx.fill();
+  }
+  
+  // Sérthetetlenség effekt (villogás)
+  if (isPlayer && player.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, width / 2 + 5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  
+  ctx.restore();
+}
+
+function drawClouds(offset) {
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  for (let i = 0; i < 5; i++) {
+    const x = (i * 300 + offset) % (canvas.width + 300) - 150;
+    const y = 50 + Math.sin(i * 0.5 + offset * 0.001) * 20;
+    const size = 60 + Math.sin(i + offset * 0.002) * 20;
+    
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.7, y - size * 0.2, size * 0.7, 0, Math.PI * 2);
+    ctx.arc(x - size * 0.7, y - size * 0.2, size * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawMountains(offset) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.5);
+  gradient.addColorStop(0, '#2c3e50');
+  gradient.addColorStop(1, '#34495e');
+  
+  ctx.fillStyle = gradient;
+  
+  for (let i = 0; i < 7; i++) {
+    const x = (i * 200 + offset * 0.5) % (canvas.width + 200) - 100;
+    const height = 100 + Math.sin(i) * 30;
+    
+    ctx.beginPath();
+    ctx.moveTo(x - 100, canvas.height * 0.5);
+    ctx.lineTo(x, canvas.height * 0.5 - height);
+    ctx.lineTo(x + 100, canvas.height * 0.5);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawTrees(offset) {
+  ctx.fillStyle = '#2d5016';
+  
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < 15; i++) {
+      const x = (i * 80 + offset) % (canvas.width + 80) - 40;
+      const treeX = side === -1 ? x - roadWidth / 2 - 30 : x + roadWidth / 2 + 30;
+      
+      if (treeX < 0 || treeX > canvas.width) continue;
+      
+      // Fa törzs
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(treeX - 5, canvas.height * 0.6, 10, 40);
+      
+      // Korona
+      ctx.fillStyle = '#2d5016';
+      ctx.beginPath();
+      ctx.arc(treeX, canvas.height * 0.6, 25, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawHouses(offset) {
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < 8; i++) {
+      const x = (i * 150 + offset * 0.8) % (canvas.width + 150) - 75;
+      const houseX = side === -1 ? x - roadWidth / 2 - 80 : x + roadWidth / 2 + 80;
+      
+      if (houseX < 0 || houseX > canvas.width) continue;
+      
+      // Ház
+      ctx.fillStyle = '#c19a6b';
+      ctx.fillRect(houseX - 25, canvas.height * 0.65, 50, 40);
+      
+      // Tető
+      ctx.fillStyle = '#8b0000';
+      ctx.beginPath();
+      ctx.moveTo(houseX - 30, canvas.height * 0.65);
+      ctx.lineTo(houseX, canvas.height * 0.6);
+      ctx.lineTo(houseX + 30, canvas.height * 0.65);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Ablakok
+      ctx.fillStyle = '#87CEEB';
+      ctx.fillRect(houseX - 15, canvas.height * 0.67, 10, 10);
+      ctx.fillRect(houseX + 5, canvas.height * 0.67, 10, 10);
+    }
+  }
+}
+
+function drawStars(offset) {
+  ctx.fillStyle = '#ffffff';
+  
+  for (let i = 0; i < 50; i++) {
+    const x = (i * 37 + offset) % canvas.width;
+    const y = (i * 23) % (canvas.height * 0.5);
+    const size = 1 + Math.sin(i + offset * 0.01) * 0.5;
+    
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawPowerup(x, y, type) {
+  ctx.save();
+  ctx.translate(x, y);
+  
+  let color, symbol;
+  
+  switch(type) {
+    case 'nitro':
+      color = '#ff9900';
+      symbol = '🚀';
+      break;
+    case 'shield':
+      color = '#00ffff';
+      symbol = '🛡️';
+      break;
+    case 'coin':
+      color = '#ffd700';
+      symbol = '💰';
+      break;
+    case 'health':
+      color = '#ff0000';
+      symbol = '❤️';
+      break;
+  }
+  
+  // Kör alap
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(0, 0, 20, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Szimbólum
+  ctx.font = '20px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#000';
+  ctx.fillText(symbol, 0, 2);
+  
+  // Animáció (pulzálás)
+  const pulse = Math.sin(Date.now() * 0.01) * 3;
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, 20 + pulse, 0, Math.PI * 2);
+  ctx.stroke();
+  
+  ctx.restore();
+}
+
+// =========== JÁTÉKOS KEZELÉS ===========
+function updatePlayer() {
+  // Előre-hátra mozgás
+  if (keys.w || keys.arrowup) {
+    player.y -= player.handling * 1.5;
+  }
+  if (keys.s || keys.arrowdown) {
+    player.y += player.handling * 1.5;
+  }
+  
+  // Oldalirányú mozgás
+  if (keys.a || keys.arrowleft) {
+    player.x -= player.handling;
+  }
+  if (keys.d || keys.arrowright) {
+    player.x += player.handling;
+  }
+  
+  // Pályán belül tartás (X tengely)
+  const minX = roadX + laneWidth / 2;
+  const maxX = roadX + roadWidth - laneWidth / 2;
+  player.x = Math.max(minX, Math.min(maxX, player.x));
+  
+  // Pályán belül tartás (Y tengely)
+  const minY = roadY + player.height / 2;
+  const maxY = roadY + roadHeight - player.height / 2;
+  player.y = Math.max(minY, Math.min(maxY, player.y));
+  
+  // Nitro kezelése
+  if (player.nitro) {
+    player.nitroTime--;
+    if (player.nitroTime <= 0) {
+      player.nitro = false;
+    }
+  }
+  
+  // Pajzs kezelése
+  if (player.shield) {
+    player.shieldTime--;
+    if (player.shieldTime <= 0) {
+      player.shield = false;
+    }
+  }
+  
+  // Sérthetetlenség kezelése
+  if (player.invincible) {
+    player.invincibleTime--;
+    if (player.invincibleTime <= 0) {
+      player.invincible = false;
+    }
+  }
+  
+  // Autó rajzolása
+  drawCar(player.x, player.y, player.width, player.height, player.color, true);
+  
+  // Sebesség számítása (mozgás alapján)
+  player.speed = Math.sqrt(
+    Math.pow(player.x - (player.prevX || player.x), 2) + 
+    Math.pow(player.y - (player.prevY || player.y), 2)
+  ) * 2;
+  
+  // Előző pozíció mentése
+  player.prevX = player.x;
+  player.prevY = player.y;
+}
+
+// =========== ELLENSÉGEK KEZELÉSE ===========
+function updateEnemies() {
+  // Új ellenségek spawn-olása
+  enemySpawnTimer++;
+  if (enemySpawnTimer > spawnRate) {
+    spawnEnemy();
+    enemySpawnTimer = 0;
+    
+    // Nehézségi skálázás
+    if (distance % 1000 === 0 && spawnRate > 40) {
+      spawnRate -= 5;
+      enemySpeed += 0.1;
+    }
+  }
+  
+  // Ellenségek frissítése
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    const enemy = enemies[i];
+    
+    // Rajzolás
+    drawCar(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color);
+    
+    // Pénz gyűjtése (ha elhaladunk mellettük)
+    if (!enemy.passed) {
+      // Ellenőrizzük, hogy az ellenfél autó a képernyőn belül van-e
+      const enemyOnScreen = enemy.y >= roadY && enemy.y <= roadY + canvas.height;
+      const playerOnScreen = player.y >= roadY && player.y <= roadY + canvas.height;
+      
+      if (enemyOnScreen && playerOnScreen) {
+        // Ha a játékos autója mögött van az ellenfél (a képernyőn belül)
+        if (enemy.y > player.y + player.height) {
+          enemy.passed = true;
+          money += 10;
+          addScore(10);
+          
+          // Pénz effekt
+          createFloatingText(enemy.x, enemy.y, "+10$", "#ffd700");
+        }
+      }
+    }
+    
+    // Ellenség mozgatása a pályával együtt
+    enemy.y += 2; // Alap mozgás
+    
+    // Oldalirányú mozgás (kanyar)
+    if (enemy.swerve) {
+      enemy.x += enemy.swerveSpeed;
+      if (enemy.x < roadX + laneWidth / 2 || enemy.x > roadX + roadWidth - laneWidth / 2) {
+        enemy.swerveSpeed *= -1;
+      }
+    }
+    
+    // Törlés ha elhagyta a pályát
+    if (enemy.y > roadY + roadHeight + 100) {
+      enemies.splice(i, 1);
+    }
+  }
+}
+
+function spawnEnemy() {
+  const lane = Math.floor(Math.random() * lanes);
+  const x = roadX + lane * laneWidth + laneWidth / 2;
+  const y = roadY - 100 - Math.random() * 100; // Pálya tetején spawn
+  
+  // Véletlenszerű autó színek
+  const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  
+  const enemy = {
+    x,
+    y,
+    width: 44,
+    height: 76,
+    color,
+    passed: false,
+    swerve: Math.random() > 0.7, // 30% esély a kanyarásra
+    swerveSpeed: (Math.random() - 0.5) * 2
+  };
+  
+  enemies.push(enemy);
+}
+
+// =========== POWER-UPOK ===========
+function updatePowerups() {
+  // Új power-up spawn
+  powerupSpawnTimer++;
+  if (powerupSpawnTimer > 300 && Math.random() < 0.01) {
+    spawnPowerup();
+    powerupSpawnTimer = 0;
+  }
+  
+  // Power-upok frissítése
+  for (let i = powerups.length - 1; i >= 0; i--) {
+    const powerup = powerups[i];
+    
+    // Rajzolás
+    drawPowerup(powerup.x, powerup.y, powerup.type);
+    
+    // Ütközés ellenőrzés
+    const dx = player.x - powerup.x;
+    const dy = player.y - powerup.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance < 30) {
+      collectPowerup(powerup);
+      powerups.splice(i, 1);
+    }
+    
+    // Power-up mozgatása a pályával együtt
+    powerup.y += 2;
+    
+    // Törlés ha elhagyta a pályát
+    if (powerup.y > roadY + roadHeight + 50) {
+      powerups.splice(i, 1);
+    }
+  }
+}
+
+function spawnPowerup() {
+  const lane = Math.floor(Math.random() * lanes);
+  const x = roadX + lane * laneWidth + laneWidth / 2;
+  const y = roadY - 50;
+  
+  const types = ['nitro', 'shield', 'coin', 'health'];
+  const weights = [0.3, 0.3, 0.3, 0.1]; // Egészség ritkább
+  let rand = Math.random();
+  let typeIndex = 0;
+  
+  for (let i = 0; i < weights.length; i++) {
+    rand -= weights[i];
+    if (rand <= 0) {
+      typeIndex = i;
+      break;
+    }
+  }
+  
+  const powerup = {
+    x,
+    y,
+    type: types[typeIndex]
+  };
+  
+  powerups.push(powerup);
+}
+
+function collectPowerup(powerup) {
+  switch(powerup.type) {
+    case 'nitro':
+      player.nitro = true;
+      player.nitroTime = 300; // 5 másodperc
+      createFloatingText(player.x, player.y, "NITRO!", "#ff9900");
+      break;
+      
+    case 'shield':
+      player.shield = true;
+      player.shieldTime = 450; // 7.5 másodperc
+      createFloatingText(player.x, player.y, "PAJZS!", "#00ffff");
+      break;
+      
+    case 'coin':
+      const coinAmount = 50 + Math.floor(Math.random() * 50);
+      money += coinAmount;
+      addScore(coinAmount);
+      createFloatingText(player.x, player.y, `+${coinAmount}$`, "#ffd700");
+      break;
+      
+    case 'health':
+      if (player.health < player.maxHealth) {
+        player.health++;
+        createFloatingText(player.x, player.y, "+1 ÉLET", "#ff0000");
+      } else {
+        money += 30; // Ha teljes az élet, kap pénzt helyette
+        createFloatingText(player.x, player.y, "+30$", "#ffd700");
+      }
+      break;
+  }
+}
+
+// =========== ÜTKÖZÉSEK ===========
+function checkCollisions() {
+  if (player.invincible) return;
+  
+  for (const enemy of enemies) {
+    const dx = player.x - enemy.x;
+    const dy = player.y - enemy.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const collisionDistance = (player.width + enemy.width) / 2 * 0.7;
+    
+    if (distance < collisionDistance) {
+      // Pajzs véd
+      if (player.shield) {
+        player.shield = false;
+        player.shieldTime = 0;
+        player.invincible = true;
+        player.invincibleTime = 60; // 1 másodperc sérthetetlenség
+        
+        // Effekt
+        createExplosion(enemy.x, enemy.y);
+        enemies.splice(enemies.indexOf(enemy), 1);
+        createFloatingText(player.x, player.y, "PAJZS TÖRVE", "#00ffff");
+        return;
+      }
+      
+      // Élet csökkenés
+      player.health--;
+      player.invincible = true;
+      player.invincibleTime = 120; // 2 másodperc sérthetetlenség
+      
+      // Effekt
+      createExplosion(player.x, player.y);
+      
+      if (player.health <= 0) {
+        endGame();
+      } else {
+        createFloatingText(player.x, player.y, `-1 ÉLET (${player.health} maradt)`, "#ff0000");
+        document.getElementById("healthTxt").textContent = `${player.health}/${player.maxHealth}`;
+      }
+      
+      break;
+    }
+  }
+}
+
+// =========== JÁTÉKÁLLAPOT ===========
+function updateGameState() {
+  // Távolság számolása (az autó mozgása alapján)
+  distance += Math.abs(player.speed) * 0.05;
+  
+  // Szint emelés
+  const newLevel = Math.floor(distance / 1000) + 1;
+  if (newLevel > level) {
+    level = newLevel;
+    createFloatingText(canvas.width / 2, canvas.height / 2, `SZINT ${level}!`, "#2ecc71");
+    
+    // Szintlépés bónusz
+    money += level * 20;
+    addScore(level * 50);
+  }
+  
+  // Rekord frissítése
+  if (distance > record) {
+    record = distance;
+    localStorage.setItem("record", Math.floor(record));
+  }
+  
+  // Max pénz frissítése
+  if (money > maxMoney) {
+    maxMoney = money;
+    localStorage.setItem("maxMoney", maxMoney);
+  }
+}
+
+// =========== EFFEKTEK ===========
+function createFloatingText(x, y, text, color) {
+  // Egyszerű lebegő szöveg
+  ctx.save();
+  ctx.font = 'bold 20px Arial';
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+function createExplosion(x, y) {
+  // Egyszerű robbanás effekt
+  for (let i = 0; i < 8; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 2;
+    const size = 3 + Math.random() * 7;
+    
+    ctx.save();
+    ctx.translate(x, y);
+    
+    ctx.fillStyle = `rgba(255, ${100 + Math.random() * 155}, 0, 0.8)`;
+    ctx.beginPath();
+    ctx.arc(
+      Math.cos(angle) * speed * 5,
+      Math.sin(angle) * speed * 5,
+      size,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+    
+    ctx.restore();
+  }
+}
+
+// =========== BOLT ===========
+function openShop() {
+  gamePaused = true;
+  document.getElementById("shop").style.display = "flex";
+  updateShop();
+}
+
+function closeShop() {
+  gamePaused = false;
+  document.getElementById("shop").style.display = "none";
+}
+
+function updateShop() {
+  document.getElementById("shopMoney").textContent = money;
+  
+  // Sebesség
+  const speedPercent = (player.maxSpeed - 6) / 9 * 100;
+  document.getElementById("speedBar").style.width = speedPercent + "%";
+  document.getElementById("currentSpeed").textContent = player.maxSpeed;
+  document.getElementById("speedBtn").disabled = player.maxSpeed >= 15 || money < 50;
+  document.getElementById("speedBtn").textContent = 
+    player.maxSpeed >= 15 ? "MAX SZINT" : `+1 Sebesség - 50$`;
+  
+  // Gyorsulás
+  const accelPercent = (player.acceleration - 0.25) / 0.25 * 100;
+  document.getElementById("accelBar").style.width = accelPercent + "%";
+  document.getElementById("currentAccel").textContent = player.acceleration.toFixed(2);
+  document.getElementById("accelBtn").disabled = player.acceleration >= 0.5 || money < 40;
+  document.getElementById("accelBtn").textContent = 
+    player.acceleration >= 0.5 ? "MAX SZINT" : `+0.05 Gyorsulás - 40$`;
+  
+  // Irányítás
+  const handlingPercent = (player.handling - 5) / 10 * 100;
+  document.getElementById("handlingBar").style.width = handlingPercent + "%";
+  document.getElementById("currentHandling").textContent = player.handling;
+  document.getElementById("handlingBtn").disabled = player.handling >= 15 || money < 30;
+  document.getElementById("handlingBtn").textContent = 
+    player.handling >= 15 ? "MAX SZINT" : `+1 Irányítás - 30$`;
+  
+  // Élet
+  const healthPercent = (player.maxHealth - 1) / 4 * 100;
+  document.getElementById("healthBar").style.width = healthPercent + "%";
+  document.getElementById("currentHealth").textContent = player.maxHealth;
+  document.getElementById("healthBtn").disabled = player.maxHealth >= 5 || money < 80;
+  document.getElementById("healthBtn").textContent = 
+    player.maxHealth >= 5 ? "MAX SZINT" : `+1 Élet - 80$`;
+}
+
+function buyUpgrade(type) {
+  switch(type) {
+    case 'speed':
+      if (money >= 50 && player.maxSpeed < 15) {
+        money -= 50;
+        player.maxSpeed++;
+      }
+      break;
+    case 'accel':
+      if (money >= 40 && player.acceleration < 0.5) {
+        money -= 40;
+        player.acceleration += 0.05;
+      }
+      break;
+    case 'handling':
+      if (money >= 30 && player.handling < 15) {
+        money -= 30;
+        player.handling++;
+      }
+      break;
+    case 'health':
+      if (money >= 80 && player.maxHealth < 5) {
+        money -= 80;
+        player.maxHealth++;
+        player.health = player.maxHealth; // Teljes életerő
+        document.getElementById("healthTxt").textContent = `${player.health}/${player.maxHealth}`;
+      }
+      break;
+  }
+  
+  updateShop();
+  updateHUD();
+}
+
+// =========== HUD ===========
+function updateHUD() {
+  document.getElementById("moneyTxt").textContent = money;
+  document.getElementById("speedTxt").textContent = player.speed.toFixed(1);
+  document.getElementById("recordTxt").textContent = Math.floor(record);
+  document.getElementById("levelTxt").textContent = level;
+  document.getElementById("distanceTxt").textContent = Math.floor(distance);
+  document.getElementById("speedValue").textContent = Math.abs(Math.floor(player.speed * 10));
+  document.getElementById("healthTxt").textContent = `${player.health}/${player.maxHealth}`;
+}
+
+function updatePowerupIndicator() {
+  const indicator = document.getElementById("powerupIndicator");
+  const text = document.getElementById("powerupText");
+  const timer = document.getElementById("powerupTimer");
+  
+  if (player.nitro || player.shield) {
+    indicator.style.display = "block";
+    
+    if (player.nitro) {
+      text.textContent = "🚀 NITRO";
+      timer.textContent = `⏱️ ${Math.ceil(player.nitroTime / 60)}s`;
+      indicator.style.borderLeftColor = "#ff9900";
+    } else if (player.shield) {
+      text.textContent = "🛡️ PAJZS";
+      timer.textContent = `⏱️ ${Math.ceil(player.shieldTime / 60)}s`;
+      indicator.style.borderLeftColor = "#00ffff";
+    }
+  } else {
+    indicator.style.display = "none";
+  }
+}
+
+// =========== JÁTÉK VÉGE ===========
+function endGame() {
+  gameOver = true;
+  gameRunning = false;
+  
+  // Játék vége képernyő
+  document.getElementById("finalDistance").textContent = Math.floor(distance) + " m";
+  document.getElementById("finalMoney").textContent = money + " $";
+  document.getElementById("finalRecord").textContent = Math.floor(record) + " m";
+  document.getElementById("gameOver").style.display = "flex";
+  
+  // Bolt gomb elrejtése
+  document.getElementById("shopBtn").style.display = "none";
+  document.getElementById("pauseBtn").style.display = "none";
+}
+
+function restartGame() {
+  document.getElementById("gameOver").style.display = "none";
+  startGame();
+}
+
+function goToMenu() {
+  document.getElementById("gameOver").style.display = "none";
+  document.getElementById("menu").style.display = "flex";
+}
+
+// =========== SZÜNET ===========
+function togglePause() {
+  if (!gameRunning || gameOver) return;
+  
+  gamePaused = !gamePaused;
+  document.getElementById("pauseBtn").textContent = gamePaused ? "▶️" : "⏸️";
+}
+
+// =========== PONT SZÁMÍTÁS ===========
+function addScore(amount) {
+  score += amount;
+}
+
+// =========== ÚTMUTATÓ ===========
+function showInstructions() {
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("instructions").style.display = "flex";
+}
+
+function closeInstructions() {
+  document.getElementById("instructions").style.display = "none";
+  document.getElementById("menu").style.display = "flex";
+}
+
+// =========== INDÍTÁS ===========
+window.addEventListener("load", init);
+
+// Bolt gomb eseménykezelő
+document.getElementById("shopBtn").addEventListener("click", openShop);
+document.getElementById("pauseBtn").addEventListener("click", togglePause);
+</script>
+</body>
+</html>
