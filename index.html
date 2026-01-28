@@ -635,7 +635,7 @@ function init() {
   resize();
 }
 
-// =========== JÁTÉK INDÍTÁSA ===========
+// =========== JÁTÉK INDÍTÁSA - JAVÍTOTT: POWER-UPOK RESETELÉSE ===========
 function startGame() {
   lanes = parseInt(document.getElementById("laneSel").value);
   player.color = document.getElementById("carColor").value;
@@ -667,6 +667,15 @@ function startGame() {
   player.velocityY = 0;
   player.roadOffset = 0;
   player.health = player.maxHealth;
+  
+  // =========== FONTOS: POWER-UP HATÁSOK RESETELÉSE ===========
+  player.nitro = false;
+  player.nitroTime = 0;
+  player.shield = false;
+  player.shieldTime = 0;
+  player.invincible = false;
+  player.invincibleTime = 0;
+  // =========== VÉGE ===========
  
   // Reseteljük a változókat
   money = 0;
@@ -675,6 +684,7 @@ function startGame() {
   level = 1;
   enemies = [];
   powerups = [];
+  floatingTexts = []; // Floating textek is resetelése
   backgroundOffset = 0;
   timeOfDay = 0;
  
@@ -682,6 +692,9 @@ function startGame() {
   document.getElementById("menu").style.display = "none";
   document.getElementById("shopBtn").style.display = "block";
   document.getElementById("pauseBtn").style.display = "block";
+  
+  // Power-up indikátor elrejtése
+  document.getElementById("powerupIndicator").style.display = "none";
  
   // Frissítjük a HUD-ot
   updateHUD();
@@ -1612,13 +1625,43 @@ function endGame() {
   document.getElementById("pauseBtn").style.display = "none";
 }
 
+// =========== ÚJ JÁTÉK - JAVÍTOTT: MINDEN POWER-UP HATÁS RESETELÉSE ===========
 function restartGame() {
+  // Elrejtjük a game over képernyőt
   document.getElementById("gameOver").style.display = "none";
+  
+  // =========== FONTOS: MINDEN POWER-UP HATÁS RESETELÉSE ===========
+  player.nitro = false;
+  player.nitroTime = 0;
+  player.shield = false;
+  player.shieldTime = 0;
+  player.invincible = false;
+  player.invincibleTime = 0;
+  
+  // Power-up indikátor elrejtése
+  document.getElementById("powerupIndicator").style.display = "none";
+  
+  // Most indítjuk el az új játékot
   startGame();
 }
 
+// =========== FŐMENÜ - JAVÍTOTT: POWER-UP HATÁSOK RESETELÉSE ===========
 function goToMenu() {
+  // Elrejtjük a game over képernyőt
   document.getElementById("gameOver").style.display = "none";
+  
+  // =========== FONTOS: MINDEN POWER-UP HATÁS RESETELÉSE ===========
+  player.nitro = false;
+  player.nitroTime = 0;
+  player.shield = false;
+  player.shieldTime = 0;
+  player.invincible = false;
+  player.invincibleTime = 0;
+  
+  // Power-up indikátor elrejtése
+  document.getElementById("powerupIndicator").style.display = "none";
+  
+  // Megjelenítjük a főmenüt
   document.getElementById("menu").style.display = "flex";
   document.getElementById("pauseBtn").style.display = "none";
   document.getElementById("shopBtn").style.display = "none";
