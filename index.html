@@ -284,11 +284,11 @@ label {
     min-width: calc(100vw - 20px);
     max-width: calc(100vw - 20px);
   }
-  
+ 
   #speedometer {
     display: none;
   }
-  
+ 
   #shopBtn {
     top: auto;
     bottom: 80px;
@@ -297,14 +297,14 @@ label {
     font-size: 18px;
     padding: 10px 15px;
   }
-  
+ 
   #pauseBtn {
     top: 5px;
     right: 5px;
     font-size: 20px;
     padding: 6px 10px;
   }
-  
+ 
   .stat {
     min-width: calc(50vw - 30px);
   }
@@ -324,13 +324,13 @@ label {
     padding: 6px 10px;
     font-size: 12px;
   }
-  
+ 
   #controls {
     bottom: 5px;
     padding: 8px;
     font-size: 11px;
   }
-  
+ 
   #shopBtn {
     padding: 6px 10px;
     font-size: 16px;
@@ -342,7 +342,7 @@ label {
   button:hover, #shopBtn:hover, #pauseBtn:hover {
     transform: none;
   }
-  
+ 
   button:active, #shopBtn:active, #pauseBtn:active {
     transform: scale(0.95);
   }
@@ -369,7 +369,7 @@ label {
 <div id="menu" class="overlay">
   <h1>🚗 ENDLESS AUTÓVERSENY 🏁</h1>
   <p>Menj minél messzebb, kerülj az ellenfeleket és gyűjts pénzt a fejlesztésekre!</p>
-  
+ 
   <div class="stats">
     <div class="stat">
       <h3>🏆 Rekord</h3>
@@ -380,25 +380,25 @@ label {
       <p id="menuMoney">0</p>
     </div>
   </div>
-  
-  <label for="laneSel">Sávok száma (csak páros):</label>
-  <select id="laneSel">
+ 
+
+  <select id="laneSel" style="visibility:hidden;">
     <option value="2">2</option>
     <option value="4" selected>4</option>
     <option value="6">6</option>
     <option value="8">8</option>
   </select>
-  
+ 
   <label for="carColor">Autó színe:</label>
   <input type="color" id="carColor" value="#ff0000">
-  
+ 
   <label for="difficulty">Nehézség:</label>
   <select id="difficulty">
     <option value="easy">Könnyű</option>
     <option value="normal" selected>Normál</option>
     <option value="hard">Nehéz</option>
   </select>
-  
+ 
   <button onclick="startGame()">JÁTÉK INDÍTÁSA</button>
   <button onclick="showInstructions()">ÚTMUTATÓ</button>
 </div>
@@ -407,7 +407,7 @@ label {
 <div id="shop" class="overlay" style="display:none">
   <h2>🛒 FEJLESZTÉSEK</h2>
   <p>💰 Pénz: <span id="shopMoney">0</span></p>
-  
+ 
   <div class="shop-item">
     <h3>🚀 Sebesség</h3>
     <p>Jelenleg: <span id="currentSpeed">5</span> (Max: 20)</p>
@@ -416,7 +416,7 @@ label {
     </div>
     <button onclick="buyUpgrade('speed')" id="speedBtn">+1 Sebesség - 500$</button>
   </div>
-  
+ 
   <div class="shop-item">
     <h3>⚡ Gyorsulás</h3>
     <p>Jelenleg: <span id="currentAccel">0.2</span> (Max: 0.8)</p>
@@ -425,7 +425,7 @@ label {
     </div>
     <button onclick="buyUpgrade('accel')" id="accelBtn">+0.1 Gyorsulás - 400$</button>
   </div>
-  
+ 
   <div class="shop-item">
     <h3>🧭 Irányítás</h3>
     <p>Jelenleg: <span id="currentHandling">5</span> (Max: 20)</p>
@@ -434,7 +434,7 @@ label {
     </div>
     <button onclick="buyUpgrade('handling')" id="handlingBtn">+1 Irányítás - 300$</button>
   </div>
-  
+ 
   <div class="shop-item">
     <h3>🛡️ Élet</h3>
     <p>Jelenleg: <span id="currentHealth">1</span> (Max: 5)</p>
@@ -443,7 +443,7 @@ label {
     </div>
     <button onclick="buyUpgrade('health')" id="healthBtn">+1 Élet - 800$</button>
   </div>
-  
+ 
   <button onclick="closeShop()">VISSZA A JÁTÉKHOZ</button>
 </div>
 
@@ -506,34 +506,34 @@ let canvasWidth = 0;
 let canvasHeight = 0;
 let baseRoadWidth = 0;
 let baseLaneWidth = 0;
-
+let floatingTexts = [];
 // Képernyő méretezés
 function resize() {
   canvasWidth = window.innerWidth;
   canvasHeight = window.innerHeight;
-  
+ 
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
-  
+ 
   // Útméretek újraszámolása
   recalculateRoadDimensions();
-  
+ 
   console.log(`Canvas átméretezve: ${canvasWidth}x${canvasHeight}`);
 }
 
 // Útméretek újraszámolása
 function recalculateRoadDimensions() {
-  // Az út szélessége a képernyő szélességétől függ
-  baseRoadWidth = Math.max(300, Math.min(800, canvasWidth * 0.8));
+  // Az út szélessége a képernyő szélességétől függ - SZŰKEBB (0.75 helyett 0.65)
+  baseRoadWidth = Math.max(250, Math.min(700, canvasWidth * 0.65));
   roadWidth = baseRoadWidth;
-  
+ 
   // Sávszélesség számítása
   laneWidth = roadWidth / lanes;
   baseLaneWidth = laneWidth;
-  
+ 
   // Út pozíciója (középre igazítva)
   roadX = (canvasWidth - roadWidth) / 2;
-  
+ 
   console.log(`Útméretek: roadWidth=${roadWidth}, laneWidth=${laneWidth}, lanes=${lanes}`);
 }
 
@@ -547,7 +547,7 @@ let pausePressed = false;
 window.addEventListener("keydown", e => {
   const key = e.key.toLowerCase();
   keys[key] = true;
-  
+ 
   if (key === 'p' && !pausePressed) {
     pausePressed = true;
     setTimeout(() => { pausePressed = false; }, 200);
@@ -578,8 +578,8 @@ let maxMoney = parseInt(localStorage.getItem("maxMoney")) || 0;
 const player = {
   x: 0,
   y: 0,
-  width: 44,
-  height: 76,
+  width: 66,
+  height: 98,
   speed: 0,
   maxSpeed: 5, // Kezdeti sebesség
   acceleration: 0.2, // Kezdeti gyorsulás
@@ -609,7 +609,7 @@ let difficulty = "normal";
 let enemies = [];
 let enemySpawnTimer = 0;
 let enemySpeed = 3;
-let spawnRate = 90;
+let spawnRate = 70; // GYORSABB SPAWNOLÁS (90 helyett 70)
 
 // Power-upok
 let powerups = [];
@@ -623,15 +623,15 @@ let timeOfDay = 0;
 function init() {
   record = parseInt(localStorage.getItem("record")) || 0;
   maxMoney = parseInt(localStorage.getItem("maxMoney")) || 0;
-  
+ 
   document.getElementById("menuRecord").textContent = record + " m";
   document.getElementById("menuMoney").textContent = maxMoney + " $";
   document.getElementById("recordTxt").textContent = record;
-  
+ 
   gameRunning = false;
   gamePaused = false;
   gameOver = false;
-  
+ 
   resize();
 }
 
@@ -640,25 +640,25 @@ function startGame() {
   lanes = parseInt(document.getElementById("laneSel").value);
   player.color = document.getElementById("carColor").value;
   difficulty = document.getElementById("difficulty").value;
-  
+ 
   switch(difficulty) {
     case "easy":
       enemySpeed = 2.5;
-      spawnRate = 110;
+      spawnRate = 80; // 110 helyett 80 (gyorsabb)
       break;
     case "normal":
       enemySpeed = 3;
-      spawnRate = 90;
+      spawnRate = 60; // 90 helyett 60 (gyorsabb)
       break;
     case "hard":
       enemySpeed = 3.5;
-      spawnRate = 70;
+      spawnRate = 40; // 70 helyett 40 (gyorsabb)
       break;
   }
-  
+ 
   // Útméretek számítása
   recalculateRoadDimensions();
-  
+ 
   // Játékos pozíciója - a pálya közepén
   player.x = canvasWidth / 2;
   player.y = canvasHeight * 0.7; // A képernyő alsó felében
@@ -667,7 +667,7 @@ function startGame() {
   player.velocityY = 0;
   player.roadOffset = 0;
   player.health = player.maxHealth;
-  
+ 
   // Reseteljük a változókat
   money = 0;
   score = 0;
@@ -677,20 +677,20 @@ function startGame() {
   powerups = [];
   backgroundOffset = 0;
   timeOfDay = 0;
-  
+ 
   // Elrejtjük a menüt
   document.getElementById("menu").style.display = "none";
   document.getElementById("shopBtn").style.display = "block";
   document.getElementById("pauseBtn").style.display = "block";
-  
+ 
   // Frissítjük a HUD-ot
   updateHUD();
-  
+ 
   // Elindítjuk a játékot
   gameRunning = true;
   gamePaused = false;
   gameOver = false;
-  
+ 
   // Játék ciklus indítása
   if (gameLoopId) {
     cancelAnimationFrame(gameLoopId);
@@ -704,44 +704,62 @@ function gameLoop() {
     gameLoopId = null;
     return;
   }
-  
+ 
   if (gamePaused || gameOver) {
     gameLoopId = requestAnimationFrame(gameLoop);
     return;
   }
-  
+ 
   // Képernyő törlése
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  
+ 
   // Háttér rajzolása
   drawBackground();
-  
+ 
   // Út rajzolása
   drawRoad();
-  
+ 
   // Játékos frissítése
   updatePlayer();
-  
+ 
   // Ellenségek frissítése
   updateEnemies();
-  
+ 
   // Power-upok frissítése
   updatePowerups();
-  
+ 
   // Ütközés ellenőrzés
   checkCollisions();
-  
+ 
   // Játékállapot frissítése
   updateGameState();
-  
+ 
   // HUD frissítése
   updateHUD();
-  
+ 
   // Power-up indikátor frissítése
   updatePowerupIndicator();
-  
+ 
+  // Floating text frissítése
+  updateFloatingTexts();
+ 
   // Következő képkocka
   gameLoopId = requestAnimationFrame(gameLoop);
+}
+
+// =========== FLOATING TEXT KEZELÉSE ===========
+function updateFloatingTexts() {
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    const t = floatingTexts[i];
+    ctx.fillStyle = t.color;
+    ctx.font = `bold ${Math.max(16, canvasWidth / 40)}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(t.text, t.x, t.y);
+    t.y -= 2;
+    t.life--;
+    if (t.life <= 0) floatingTexts.splice(i, 1);
+  }
 }
 
 // =========== ÚT RAJZOLÁSA ===========
@@ -751,10 +769,10 @@ function drawRoad() {
   if (player.roadOffset < -canvasHeight * 2) {
     player.roadOffset += canvasHeight * 2;
   }
-  
+ 
   // Kiszámoljuk, hány szakaszt kell rajzolni (2 a képernyőn, plusz 1 fölötte/alatta)
   const startY = Math.floor(player.roadOffset / canvasHeight) * canvasHeight;
-  
+ 
   // 3 szakasz rajzolása (fölötte, középen, alatta)
   for (let i = -1; i <= 1; i++) {
     const roadY = startY + i * canvasHeight;
@@ -765,32 +783,32 @@ function drawRoad() {
 function drawRoadSegment(segmentY) {
   // Számítsuk ki a szegmens képernyőn belüli Y pozícióját
   const screenY = segmentY - player.roadOffset;
-  
+ 
   // Csak akkor rajzoljuk, ha a képernyőn van (vagy annak közelében)
   if (screenY > canvasHeight || screenY < -canvasHeight) {
     return;
   }
-  
+ 
   // Út
   ctx.fillStyle = '#333';
   ctx.fillRect(roadX, screenY, roadWidth, canvasHeight);
-  
+ 
   // Középső vonal
   ctx.setLineDash([30, 20]);
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  
+ 
   const centerLineX = roadX + roadWidth / 2;
   const startY = Math.max(screenY, 0);
   const endY = Math.min(screenY + canvasHeight, canvasHeight);
-  
+ 
   if (endY > startY) {
     ctx.moveTo(centerLineX, startY);
     ctx.lineTo(centerLineX, endY);
     ctx.stroke();
   }
-  
+ 
   // Sávvonalak
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 2;
@@ -801,35 +819,35 @@ function drawRoadSegment(segmentY) {
     ctx.lineTo(laneX, endY);
     ctx.stroke();
   }
-  
+ 
   // Út széle
   ctx.setLineDash([]);
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 6;
   ctx.strokeRect(roadX, startY, roadWidth, endY - startY);
-  
+ 
   // Útvonal animáció
   drawRoadLines(screenY, startY, endY);
 }
 
 function drawRoadLines(segmentY, startY, endY) {
   const lineOffset = (backgroundOffset * 2) % 100;
-  
+ 
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 4;
   ctx.setLineDash([20, 30]);
-  
+ 
   // Középső sávvonal szaggatott vonalai
   for (let i = 0; i < lanes; i++) {
     const x = roadX + i * laneWidth + laneWidth / 2;
-    
+   
     // Csak a látható részen rajzoljuk a vonalakat
     const firstLineY = Math.floor((startY - segmentY - lineOffset) / 100) * 100 + lineOffset + segmentY;
-    
+   
     for (let y = firstLineY; y < endY; y += 100) {
       const lineStartY = Math.max(y, startY);
       const lineEndY = Math.min(y + 50, endY);
-      
+     
       if (lineEndY > lineStartY) {
         ctx.beginPath();
         ctx.moveTo(x, lineStartY);
@@ -838,7 +856,7 @@ function drawRoadLines(segmentY, startY, endY) {
       }
     }
   }
-  
+ 
   ctx.setLineDash([]);
 }
 
@@ -847,21 +865,21 @@ function drawBackground() {
   backgroundOffset += Math.abs(player.velocityY);
   timeOfDay += 0.0001;
   if (timeOfDay > 2) timeOfDay = 0;
-  
+ 
   const isNight = timeOfDay > 1;
   const skyColor = isNight ? '#0a0a2a' : '#87CEEB';
-  
+ 
   ctx.fillStyle = skyColor;
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-  
+ 
   if (!isNight) {
     drawClouds(backgroundOffset * 0.5);
   }
-  
+ 
   if (isNight) {
     drawStars(backgroundOffset * 0.3);
   }
-  
+ 
   drawMountains(backgroundOffset * 0.8);
   drawTrees(backgroundOffset);
   drawHouses(backgroundOffset);
@@ -870,32 +888,32 @@ function drawBackground() {
 function drawCar(x, y, width, height, color, isPlayer = false) {
   ctx.save();
   ctx.translate(x, y);
-  
+ 
   const scale = Math.min(1, canvasWidth / 1200);
   const scaledWidth = width * scale;
   const scaledHeight = height * scale;
-  
+ 
   // Autó karosszéria
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.roundRect(-scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight, 10 * scale);
   ctx.fill();
-  
+ 
   // Üveg
   ctx.fillStyle = 'rgba(100, 150, 255, 0.6)';
   ctx.fillRect(-scaledWidth / 3, -scaledHeight / 2 + 8 * scale, scaledWidth * 0.66, 14 * scale);
-  
+ 
   // Fények
   const lightColor = isPlayer && player.nitro ? '#ff9900' : '#ffff00';
   ctx.fillStyle = lightColor;
   ctx.fillRect(-scaledWidth / 2 - 5 * scale, -scaledHeight / 4, 5 * scale, 8 * scale);
   ctx.fillRect(scaledWidth / 2, -scaledHeight / 4, 5 * scale, 8 * scale);
-  
+ 
   // Stoppfény
   ctx.fillStyle = '#ff0000';
   ctx.fillRect(-scaledWidth / 2 - 5 * scale, scaledHeight / 4, 5 * scale, 8 * scale);
   ctx.fillRect(scaledWidth / 2, scaledHeight / 4, 5 * scale, 8 * scale);
-  
+ 
   // Pajzs
   if (isPlayer && player.shield) {
     ctx.strokeStyle = '#00ffff';
@@ -904,7 +922,7 @@ function drawCar(x, y, width, height, color, isPlayer = false) {
     ctx.arc(0, 0, scaledWidth / 2 + 10 * scale, 0, Math.PI * 2);
     ctx.stroke();
   }
-  
+ 
   // Nitro effekt
   if (isPlayer && player.nitro) {
     ctx.fillStyle = '#ff9900';
@@ -915,7 +933,7 @@ function drawCar(x, y, width, height, color, isPlayer = false) {
     ctx.closePath();
     ctx.fill();
   }
-  
+ 
   // Sérthetetlenség effekt
   if (isPlayer && player.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
@@ -924,7 +942,7 @@ function drawCar(x, y, width, height, color, isPlayer = false) {
     ctx.arc(0, 0, scaledWidth / 2 + 5 * scale, 0, Math.PI * 2);
     ctx.stroke();
   }
-  
+ 
   ctx.restore();
 }
 
@@ -934,7 +952,7 @@ function drawClouds(offset) {
     const x = (i * 300 + offset) % (canvasWidth + 300) - 150;
     const y = 50 + Math.sin(i * 0.5 + offset * 0.001) * 20;
     const size = 60 + Math.sin(i + offset * 0.002) * 20;
-    
+   
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.arc(x + size * 0.7, y - size * 0.2, size * 0.7, 0, Math.PI * 2);
@@ -947,13 +965,13 @@ function drawMountains(offset) {
   const gradient = ctx.createLinearGradient(0, 0, 0, canvasHeight * 0.5);
   gradient.addColorStop(0, '#2c3e50');
   gradient.addColorStop(1, '#34495e');
-  
+ 
   ctx.fillStyle = gradient;
-  
+ 
   for (let i = 0; i < 7; i++) {
     const x = (i * 200 + offset * 0.5) % (canvasWidth + 200) - 100;
     const height = 100 + Math.sin(i) * 30;
-    
+   
     ctx.beginPath();
     ctx.moveTo(x - 100, canvasHeight * 0.5);
     ctx.lineTo(x, canvasHeight * 0.5 - height);
@@ -965,17 +983,17 @@ function drawMountains(offset) {
 
 function drawTrees(offset) {
   ctx.fillStyle = '#2d5016';
-  
+ 
   for (let side = -1; side <= 1; side += 2) {
     for (let i = 0; i < 15; i++) {
       const x = (i * 80 + offset) % (canvasWidth + 80) - 40;
       const treeX = side === -1 ? x - roadWidth / 2 - 30 : x + roadWidth / 2 + 30;
-      
+     
       if (treeX < 0 || treeX > canvasWidth) continue;
-      
+     
       ctx.fillStyle = '#8B4513';
       ctx.fillRect(treeX - 5, canvasHeight * 0.6, 10, 40);
-      
+     
       ctx.fillStyle = '#2d5016';
       ctx.beginPath();
       ctx.arc(treeX, canvasHeight * 0.6, 25, 0, Math.PI * 2);
@@ -989,12 +1007,12 @@ function drawHouses(offset) {
     for (let i = 0; i < 8; i++) {
       const x = (i * 150 + offset * 0.8) % (canvasWidth + 150) - 75;
       const houseX = side === -1 ? x - roadWidth / 2 - 80 : x + roadWidth / 2 + 80;
-      
+     
       if (houseX < 0 || houseX > canvasWidth) continue;
-      
+     
       ctx.fillStyle = '#c19a6b';
       ctx.fillRect(houseX - 25, canvasHeight * 0.65, 50, 40);
-      
+     
       ctx.fillStyle = '#8b0000';
       ctx.beginPath();
       ctx.moveTo(houseX - 30, canvasHeight * 0.65);
@@ -1002,7 +1020,7 @@ function drawHouses(offset) {
       ctx.lineTo(houseX + 30, canvasHeight * 0.65);
       ctx.closePath();
       ctx.fill();
-      
+     
       ctx.fillStyle = '#87CEEB';
       ctx.fillRect(houseX - 15, canvasHeight * 0.67, 10, 10);
       ctx.fillRect(houseX + 5, canvasHeight * 0.67, 10, 10);
@@ -1012,12 +1030,12 @@ function drawHouses(offset) {
 
 function drawStars(offset) {
   ctx.fillStyle = '#ffffff';
-  
+ 
   for (let i = 0; i < 50; i++) {
     const x = (i * 37 + offset) % canvasWidth;
     const y = (i * 23) % (canvasHeight * 0.5);
     const size = 1 + Math.sin(i + offset * 0.01) * 0.5;
-    
+   
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fill();
@@ -1027,9 +1045,9 @@ function drawStars(offset) {
 function drawPowerup(x, y, type) {
   ctx.save();
   ctx.translate(x, y);
-  
+ 
   let color, symbol;
-  
+ 
   switch(type) {
     case 'nitro':
       color = '#ff9900';
@@ -1048,82 +1066,81 @@ function drawPowerup(x, y, type) {
       symbol = '❤️';
       break;
   }
-  
+ 
   const scale = Math.min(1, canvasWidth / 1200);
   const size = 20 * scale;
-  
+ 
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(0, 0, size, 0, Math.PI * 2);
   ctx.fill();
-  
+ 
   ctx.font = `${20 * scale}px Arial`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#000';
   ctx.fillText(symbol, 0, 2 * scale);
-  
+ 
   const pulse = Math.sin(Date.now() * 0.01) * 3 * scale;
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 2 * scale;
   ctx.beginPath();
   ctx.arc(0, 0, size + pulse, 0, Math.PI * 2);
   ctx.stroke();
-  
+ 
   ctx.restore();
 }
 
-// =========== JÁTÉKOS KEZELÉS - MEGVÁLTOZTATOTT ===========
+// =========== JÁTÉKOS KEZELÉS ===========
 function updatePlayer() {
   let targetVelocityX = 0;
   let targetVelocityY = 0;
-  
-  // Balra-jobbra mozgás - ÉRZÉKENYEBB
+ 
+  // Balra-jobbra mozgás
   if (keys.a || keys.arrowleft) {
-    targetVelocityX = -player.handling * 1.5; // 50%-kal gyorsabb
+    targetVelocityX = -player.handling * 1.5;
   }
   if (keys.d || keys.arrowright) {
-    targetVelocityX = player.handling * 1.5; // 50%-kal gyorsabb
+    targetVelocityX = player.handling * 1.5;
   }
-  
-  // Fel-le mozgás - ÉRZÉKENYEBB
+ 
+  // Fel-le mozgás
   if (keys.w || keys.arrowup) {
-    targetVelocityY = -player.handling * 2.0; // 100%-kal gyorsabb
+    targetVelocityY = -player.handling * 2.0;
   }
   if (keys.s || keys.arrowdown) {
-    targetVelocityY = Math.min(player.handling * 1.0, 1.0); // 100%-kal gyorsabb, de limitálva
+    targetVelocityY = Math.min(player.handling * 1.0, 1.0);
   }
-  
-  // SIMÁBB INTERPOLÁCIÓ - gyorsabb reagálás
-  player.velocityX += (targetVelocityX - player.velocityX) * 0.15; // 0.1 helyett 0.15
-  player.velocityY += (targetVelocityY - player.velocityY) * 0.15; // 0.1 helyett 0.15
-  
+ 
+  // Simább interpoláció
+  player.velocityX += (targetVelocityX - player.velocityX) * 0.15;
+  player.velocityY += (targetVelocityY - player.velocityY) * 0.15;
+ 
   // Pozíció frissítése
   player.x += player.velocityX;
-  
+ 
   // Játékos korlátozása az út széléhez (X tengely)
   const minX = roadX + laneWidth / 2;
   const maxX = roadX + roadWidth - laneWidth / 2;
   player.x = Math.max(minX, Math.min(maxX, player.x));
-  
-  // Játékos Y pozícióját fixen tartjuk a képernyő alsó felében
+ 
+  // Játékos Y pozícióját fixen tartjuk
   player.y = canvasHeight * 0.7;
-  
-  // Sebesség kiszámítása - valósabb sebesség
-  player.speed = Math.sqrt(player.velocityX * player.velocityX + player.velocityY * player.velocityY) * 25; // 15 helyett 25
-  
-  // Nitro kezelése - erősebb nitro
+ 
+  // Sebesség kiszámítása
+  player.speed = Math.sqrt(player.velocityX * player.velocityX + player.velocityY * player.velocityY) * 25;
+ 
+  // Nitro kezelése
   if (player.nitro) {
     player.nitroTime--;
     if (player.nitroTime <= 0) {
       player.nitro = false;
     } else {
-      // Nitro hatása: sokkal erősebb gyorsulás
-      player.velocityY *= 1.1; // 1.05 helyett 1.1
-      player.velocityX *= 1.1; // X irányban is gyorsít
+      player.velocityY *= 1.1;
+      player.velocityX *= 1.1;
     }
   }
-  
+ 
   // Pajzs kezelése
   if (player.shield) {
     player.shieldTime--;
@@ -1131,7 +1148,7 @@ function updatePlayer() {
       player.shield = false;
     }
   }
-  
+ 
   // Sérthetetlenség kezelése
   if (player.invincible) {
     player.invincibleTime--;
@@ -1139,63 +1156,63 @@ function updatePlayer() {
       player.invincible = false;
     }
   }
-  
+ 
   // Autó rajzolása
   drawCar(player.x, player.y, player.width, player.height, player.color, true);
 }
 
-// =========== ELLENSÉGEK KEZELÉSE ===========
+// =========== ELLENSÉGEK KEZELÉSE - MÓDOSÍTOTT ===========
 function updateEnemies() {
   enemySpawnTimer++;
   if (enemySpawnTimer > spawnRate) {
     spawnEnemy();
     enemySpawnTimer = 0;
-    
+   
     // Nehézség növelése
-    if (distance % 1000 === 0 && spawnRate > 40) {
+    if (distance % 1000 === 0 && spawnRate > 20) { // 40 helyett 20 (nehéz)
       spawnRate -= 5;
       enemySpeed += 0.1;
     }
   }
-  
+ 
   for (let i = enemies.length - 1; i >= 0; i--) {
     const enemy = enemies[i];
-    
+   
     // Ellenfél pozíciójának frissítése
-    enemy.y -= player.velocityY; // Úttal együtt mozog
-    enemy.y += enemySpeed; // Ellenfél saját sebessége
-    
+    enemy.y -= player.velocityY;
+    enemy.y += enemySpeed;
+   
     // Ellenfél képernyőn belüli pozíciója
     const enemyScreenY = enemy.y - player.roadOffset;
-    
+   
     // Ellenőrizzük, hogy az ellenfél még a képernyőn van-e
     const isVisible = enemyScreenY > -100 && enemyScreenY < canvasHeight + 100;
-    
+   
     if (isVisible) {
       drawCar(enemy.x, enemyScreenY, enemy.width, enemy.height, enemy.color);
-      
-      // Ellenfél átadása ellenőrzése - KEVESEBB PÉNZ
+     
+      // Ellenfél átadása ellenőrzése
       if (!enemy.passed && enemyScreenY > player.y + player.height / 2) {
         enemy.passed = true;
-        money += 5; // 10 helyett 5
-        addScore(5); // 10 helyett 5
+        money += 5;
+        addScore(5);
         createFloatingText(enemy.x, enemyScreenY, "+5$", "#ffd700");
       }
-      
-      // Ellenfél oldalirányú mozgása
+     
+      // Ellenfél oldalirányú mozgása - GYAKORIBB (0.7 helyett 0.85)
       if (enemy.swerve) {
         enemy.x += enemy.swerveSpeed;
         const minX = roadX + laneWidth / 2;
         const maxX = roadX + roadWidth - laneWidth / 2;
-        
+       
         if (enemy.x < minX || enemy.x > maxX) {
           enemy.swerveSpeed *= -1;
           enemy.x = Math.max(minX, Math.min(maxX, enemy.x));
         }
       }
     }
-    
-    // Ha az ellenfél elhagyta a pályát (túl lent van), töröljük
+   
+    // Ha az ellenfél elhagyta a pályát, töröljük
     if (enemy.y > player.roadOffset + canvasHeight * 2) {
       enemies.splice(i, 1);
     }
@@ -1206,25 +1223,51 @@ function spawnEnemy() {
   // Választunk egy random sávot
   const lane = Math.floor(Math.random() * lanes);
   const x = roadX + lane * laneWidth + laneWidth / 2;
+ 
+  // KISEBB TÁVOLSÁG az autók között (30-50 helyett 20-40)
+  const spawnY = player.roadOffset - 20 - Math.random() * 20;
+ 
+  // TÖBB AUTÓ egy időben (70% esély helyett 85%)
+  if (Math.random() > 0.15) {
+    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+   
+    const enemy = {
+      x,
+      y: spawnY,
+      width: 66,
+      height: 98,
+      color,
+      passed: false,
+      swerve: Math.random() > 0.15, // 0.3 helyett 0.15 (gyakoribb oldalazás)
+      swerveSpeed: (Math.random() - 0.5) * 3 // Gyorsabb oldalazás
+    };
+   
+    enemies.push(enemy);
+  }
   
-  // Ellenfél létrehozása a játékos felett (úton kívül)
-  const spawnY = player.roadOffset - 100 - Math.random() * 200;
-  
-  const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  
-  const enemy = {
-    x,
-    y: spawnY, // Abszolút Y pozíció
-    width: 44,
-    height: 76,
-    color,
-    passed: false,
-    swerve: Math.random() > 0.7,
-    swerveSpeed: (Math.random() - 0.5) * 2
-  };
-  
-  enemies.push(enemy);
+  // ESETLEG MÉG EGY AUTÓ (30% esély a dupla autóra)
+  if (Math.random() > 0.7 && lanes > 2) {
+    const lane2 = (lane + Math.floor(Math.random() * (lanes-1)) + 1) % lanes;
+    const x2 = roadX + lane2 * laneWidth + laneWidth / 2;
+    const spawnY2 = spawnY - 30 - Math.random() * 20;
+    
+    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+    const color2 = colors[Math.floor(Math.random() * colors.length)];
+    
+    const enemy2 = {
+      x: x2,
+      y: spawnY2,
+      width: 66,
+      height: 98,
+      color: color2,
+      passed: false,
+      swerve: Math.random() > 0.2,
+      swerveSpeed: (Math.random() - 0.5) * 2.5
+    };
+    
+    enemies.push(enemy2);
+  }
 }
 
 // =========== POWER-UPOK ===========
@@ -1234,34 +1277,34 @@ function updatePowerups() {
     spawnPowerup();
     powerupSpawnTimer = 0;
   }
-  
+ 
   for (let i = powerups.length - 1; i >= 0; i--) {
     const powerup = powerups[i];
-    
+   
     // Power-up pozíciójának frissítése
-    powerup.y -= player.velocityY; // Úttal együtt mozog
-    powerup.y += 2; // Lassú lefelé mozgás
-    
+    powerup.y -= player.velocityY;
+    powerup.y += 2;
+   
     // Power-up képernyőn belüli pozíciója
     const powerupScreenY = powerup.y - player.roadOffset;
-    
+   
     // Ellenőrizzük, hogy a power-up még a képernyőn van-e
     const isVisible = powerupScreenY > -50 && powerupScreenY < canvasHeight + 50;
-    
+   
     if (isVisible) {
       drawPowerup(powerup.x, powerupScreenY, powerup.type);
-      
+     
       // Ütközés ellenőrzés játékossal
       const dx = player.x - powerup.x;
       const dy = player.y - powerupScreenY;
       const distanceToPlayer = Math.sqrt(dx * dx + dy * dy);
-      
+     
       if (distanceToPlayer < 30) {
         collectPowerup(powerup);
         powerups.splice(i, 1);
       }
     }
-    
+   
     // Ha a power-up elhagyta a pályát, töröljük
     if (powerup.y > player.roadOffset + canvasHeight * 2) {
       powerups.splice(i, 1);
@@ -1273,15 +1316,15 @@ function spawnPowerup() {
   // Választunk egy random sávot
   const lane = Math.floor(Math.random() * lanes);
   const x = roadX + lane * laneWidth + laneWidth / 2;
-  
+ 
   // Power-up létrehozása a játékos felett
   const spawnY = player.roadOffset - 50;
-  
+ 
   const types = ['nitro', 'shield', 'coin', 'health'];
   const weights = [0.3, 0.3, 0.3, 0.1];
   let rand = Math.random();
   let typeIndex = 0;
-  
+ 
   for (let i = 0; i < weights.length; i++) {
     rand -= weights[i];
     if (rand <= 0) {
@@ -1289,13 +1332,13 @@ function spawnPowerup() {
       break;
     }
   }
-  
+ 
   const powerup = {
     x,
-    y: spawnY, // Abszolút Y pozíció
+    y: spawnY,
     type: types[typeIndex]
   };
-  
+ 
   powerups.push(powerup);
 }
 
@@ -1306,110 +1349,83 @@ function collectPowerup(powerup) {
       player.nitroTime = 300;
       createFloatingText(player.x, player.y, "NITRO!", "#ff9900");
       break;
-      
+     
     case 'shield':
       player.shield = true;
       player.shieldTime = 450;
       createFloatingText(player.x, player.y, "PAJZS!", "#00ffff");
       break;
-      
+     
     case 'coin':
-      const coinAmount = 25 + Math.floor(Math.random() * 25); // Kevesebb pénz
+      const coinAmount = 25 + Math.floor(Math.random() * 25);
       money += coinAmount;
       addScore(coinAmount);
       createFloatingText(player.x, player.y, `+${coinAmount}$`, "#ffd700");
       break;
-      
+     
     case 'health':
       if (player.health < player.maxHealth) {
         player.health++;
         createFloatingText(player.x, player.y, "+1 ÉLET", "#ff0000");
         document.getElementById("healthTxt").textContent = `${player.health}/${player.maxHealth}`;
       } else {
-        money += 15; // Kevesebb pénz
+        money += 15;
         createFloatingText(player.x, player.y, "+15$", "#ffd700");
       }
       break;
   }
 }
 
+function createFloatingText(x, y, text, color) {
+  floatingTexts.push({
+    x: x,
+    y: y,
+    text: text,
+    color: color,
+    life: 60
+  });
+}
+
 // =========== ÜTKÖZÉSEK ===========
 function checkCollisions() {
   if (player.invincible) return;
-  
+ 
   for (const enemy of enemies) {
     const enemyScreenY = enemy.y - player.roadOffset;
     const dx = player.x - enemy.x;
     const dy = player.y - enemyScreenY;
     const distance = Math.sqrt(dx * dx + dy * dy);
     const collisionDistance = (player.width + enemy.width) / 2 * 0.7;
-    
+   
     if (distance < collisionDistance) {
       if (player.shield) {
         player.shield = false;
         player.shieldTime = 0;
         player.invincible = true;
         player.invincibleTime = 60;
-        
+       
         createExplosion(enemy.x, enemyScreenY);
         enemies.splice(enemies.indexOf(enemy), 1);
         createFloatingText(player.x, player.y, "PAJZS TÖRVE", "#00ffff");
         return;
       }
-      
+     
       player.health--;
       player.invincible = true;
       player.invincibleTime = 120;
-      
+     
       createExplosion(player.x, player.y);
-      
+     
       if (player.health <= 0) {
         endGame();
       } else {
         createFloatingText(player.x, player.y, `-1 ÉLET (${player.health} maradt)`, "#ff0000");
         document.getElementById("healthTxt").textContent = `${player.health}/${player.maxHealth}`;
       }
-      
+     
       break;
     }
   }
-}
-
-// =========== JÁTÉKÁLLAPOT ===========
-function updateGameState() {
-  if (player.velocityY < 0) {
-    distance += Math.abs(player.velocityY) * 2;
-  }
-  
-  const newLevel = Math.floor(distance / 10000) + 1;
-  if (newLevel > level) {
-    level = newLevel;
-    createFloatingText(canvasWidth / 2, canvasHeight / 2, `SZINT ${level}!`, "#2ecc71");
-    
-    money += level * 5; // Kevesebb pénz szintlépéskor
-    addScore(level * 25); // Kevesebb pont
-  }
-  
-  if (distance > record) {
-    record = distance;
-    localStorage.setItem("record", Math.floor(record));
-  }
-  
-  if (money > maxMoney) {
-    maxMoney = money;
-    localStorage.setItem("maxMoney", maxMoney);
-  }
-}
-
-// =========== EFFEKTEK ===========
-function createFloatingText(x, y, text, color) {
-  ctx.save();
-  ctx.font = `bold ${Math.max(16, canvasWidth / 40)}px Arial`;
-  ctx.fillStyle = color;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, x, y);
-  ctx.restore();
 }
 
 function createExplosion(x, y) {
@@ -1417,10 +1433,10 @@ function createExplosion(x, y) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 1 + Math.random() * 2;
     const size = 3 + Math.random() * 7;
-    
+   
     ctx.save();
     ctx.translate(x, y);
-    
+   
     ctx.fillStyle = `rgba(255, ${100 + Math.random() * 155}, 0, 0.8)`;
     ctx.beginPath();
     ctx.arc(
@@ -1431,12 +1447,38 @@ function createExplosion(x, y) {
       Math.PI * 2
     );
     ctx.fill();
-    
+   
     ctx.restore();
   }
 }
 
-// =========== BOLT - DRÁGÁBB FEJLESZTÉSEK ===========
+// =========== JÁTÉKÁLLAPOT ===========
+function updateGameState() {
+  if (player.velocityY < 0) {
+    distance += Math.abs(player.velocityY) * 2;
+  }
+ 
+  const newLevel = Math.floor(distance / 10000) + 1;
+  if (newLevel > level) {
+    level = newLevel;
+    createFloatingText(canvasWidth / 2, canvasHeight / 2, `SZINT ${level}!`, "#2ecc71");
+   
+    money += level * 5;
+    addScore(level * 25);
+  }
+ 
+  if (distance > record) {
+    record = distance;
+    localStorage.setItem("record", Math.floor(record));
+  }
+ 
+  if (money > maxMoney) {
+    maxMoney = money;
+    localStorage.setItem("maxMoney", maxMoney);
+  }
+}
+
+// =========== BOLT ===========
 function openShop() {
   gamePaused = true;
   document.getElementById("shop").style.display = "flex";
@@ -1450,37 +1492,37 @@ function closeShop() {
 
 function updateShop() {
   document.getElementById("shopMoney").textContent = money;
-  
-  // Sebesség - maximum 20, ára 500$
+ 
+  // Sebesség
   const speedPercent = (player.maxSpeed - 5) / 15 * 100;
   document.getElementById("speedBar").style.width = speedPercent + "%";
   document.getElementById("currentSpeed").textContent = player.maxSpeed;
   document.getElementById("speedBtn").disabled = player.maxSpeed >= 20 || money < 500;
-  document.getElementById("speedBtn").textContent = 
+  document.getElementById("speedBtn").textContent =
     player.maxSpeed >= 20 ? "MAX SZINT" : `+1 Sebesség - 500$`;
-  
-  // Gyorsulás - maximum 0.8, ára 400$
+ 
+  // Gyorsulás
   const accelPercent = (player.acceleration - 0.2) / 0.6 * 100;
   document.getElementById("accelBar").style.width = accelPercent + "%";
   document.getElementById("currentAccel").textContent = player.acceleration.toFixed(2);
   document.getElementById("accelBtn").disabled = player.acceleration >= 0.8 || money < 400;
-  document.getElementById("accelBtn").textContent = 
+  document.getElementById("accelBtn").textContent =
     player.acceleration >= 0.8 ? "MAX SZINT" : `+0.1 Gyorsulás - 400$`;
-  
-  // Irányítás - maximum 20, ára 300$
+ 
+  // Irányítás
   const handlingPercent = (player.handling - 5) / 15 * 100;
   document.getElementById("handlingBar").style.width = handlingPercent + "%";
   document.getElementById("currentHandling").textContent = player.handling;
   document.getElementById("handlingBtn").disabled = player.handling >= 20 || money < 300;
-  document.getElementById("handlingBtn").textContent = 
+  document.getElementById("handlingBtn").textContent =
     player.handling >= 20 ? "MAX SZINT" : `+1 Irányítás - 300$`;
-  
-  // Élet - maximum 5, ára 800$
+ 
+  // Élet
   const healthPercent = (player.maxHealth - 1) / 4 * 100;
   document.getElementById("healthBar").style.width = healthPercent + "%";
   document.getElementById("currentHealth").textContent = player.maxHealth;
   document.getElementById("healthBtn").disabled = player.maxHealth >= 5 || money < 800;
-  document.getElementById("healthBtn").textContent = 
+  document.getElementById("healthBtn").textContent =
     player.maxHealth >= 5 ? "MAX SZINT" : `+1 Élet - 800$`;
 }
 
@@ -1490,7 +1532,7 @@ function buyUpgrade(type) {
       if (money >= 500 && player.maxSpeed < 20) {
         money -= 500;
         player.maxSpeed++;
-        player.handling++; // Sebesség növelése irányítást is javít
+        player.handling++;
       }
       break;
     case 'accel':
@@ -1514,7 +1556,7 @@ function buyUpgrade(type) {
       }
       break;
   }
-  
+ 
   updateShop();
   updateHUD();
 }
@@ -1533,10 +1575,10 @@ function updatePowerupIndicator() {
   const indicator = document.getElementById("powerupIndicator");
   const text = document.getElementById("powerupText");
   const timer = document.getElementById("powerupTimer");
-  
+ 
   if (player.nitro || player.shield) {
     indicator.style.display = "block";
-    
+   
     if (player.nitro) {
       text.textContent = "🚀 NITRO";
       timer.textContent = `⏱️ ${Math.ceil(player.nitroTime / 60)}s`;
@@ -1555,17 +1597,17 @@ function updatePowerupIndicator() {
 function endGame() {
   gameOver = true;
   gameRunning = false;
-  
+ 
   if (gameLoopId) {
     cancelAnimationFrame(gameLoopId);
     gameLoopId = null;
   }
-  
+ 
   document.getElementById("finalDistance").textContent = Math.floor(distance) + " m";
   document.getElementById("finalMoney").textContent = money + " $";
   document.getElementById("finalRecord").textContent = Math.floor(record) + " m";
   document.getElementById("gameOver").style.display = "flex";
-  
+ 
   document.getElementById("shopBtn").style.display = "none";
   document.getElementById("pauseBtn").style.display = "none";
 }
@@ -1580,7 +1622,7 @@ function goToMenu() {
   document.getElementById("menu").style.display = "flex";
   document.getElementById("pauseBtn").style.display = "none";
   document.getElementById("shopBtn").style.display = "none";
-  
+ 
   if (gameLoopId) {
     cancelAnimationFrame(gameLoopId);
     gameLoopId = null;
@@ -1590,17 +1632,17 @@ function goToMenu() {
 // =========== SZÜNET ===========
 function togglePause() {
   if (!gameRunning || gameOver) return;
-  
+ 
   gamePaused = !gamePaused;
   const pauseBtn = document.getElementById("pauseBtn");
-  
+ 
   if (gamePaused) {
     pauseBtn.textContent = "▶️";
     pauseBtn.classList.add("paused");
   } else {
     pauseBtn.textContent = "⏸️";
     pauseBtn.classList.remove("paused");
-    
+   
     if (!gameLoopId) {
       gameLoopId = requestAnimationFrame(gameLoop);
     }
@@ -1650,25 +1692,21 @@ window.addEventListener("resize", function() {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(function() {
     if (gameRunning && !gamePaused && !gameOver) {
-      // Újraszámoljuk a pálya pozíciókat
       recalculateRoadDimensions();
-      
-      // Frissítjük az ellenségek pozícióját
+     
       enemies.forEach(enemy => {
         const lane = Math.floor((enemy.x - roadX) / laneWidth);
         enemy.x = roadX + lane * laneWidth + laneWidth / 2;
       });
-      
-      // Frissítjük a power-upok pozícióját
+     
       powerups.forEach(powerup => {
         const lane = Math.floor((powerup.x - roadX) / laneWidth);
         powerup.x = roadX + lane * laneWidth + laneWidth / 2;
       });
-      
-      // Játékos pozíciójának korrigálása
+     
       const lane = Math.floor((player.x - roadX) / laneWidth);
       player.x = roadX + lane * laneWidth + laneWidth / 2;
-      
+     
       console.log("Átméretezés után játék állapot frissítve");
     }
   }, 250);
